@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bifrost Wallet — Desktop App for Windows</title>
+  <meta name="description" content="Download the Bifrost Desktop App for Windows. Enjoy improved hardware compatibility, advanced scam detection, and in-built AI support." />
+  <link rel="icon" href="https://pbs.twimg.com/profile_images/1919356719978745856/Y8WmQuY2_400x400.jpg" type="image/jpeg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #161420;
+      --bg-secondary: #201E2A;
+      --bg-card: rgba(32, 30, 42, 0.7);
+      --bg-card-light: rgba(43, 44, 54, 0.5);
+      --text-primary: #F8F8F8;
+      --text-secondary: rgba(248, 248, 248, 0.65);
+      --text-muted: rgba(248, 248, 248, 0.4);
+      --purple: #614AC5;
+      --blue: #3F52C2;
+      --purple-light: #7656EE;
+      --purple-glow: rgba(118, 86, 238, 0.35);
+      --blue-glow: rgba(73, 97, 234, 0.25);
+      --gradient-primary: linear-gradient(88deg, #614AC5 0%, #3F52C2 100%);
+      --gradient-hero: linear-gradient(135deg, #614AC5 0%, #3F52C2 60%, #2a3a9e 100%);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-card: rgba(255, 255, 255, 0.12);
+      --radius-pill: 100px;
+      --radius-card: 20px;
+      --radius-sm: 12px;
+      --shadow-glow: 0 0 60px rgba(97, 74, 197, 0.4);
+      --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ===== SCROLL REVEAL ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-50px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal-left.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(50px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal-right.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .reveal-scale {
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal-scale.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .delay-100 { transition-delay: 0.1s; }
+    .delay-200 { transition-delay: 0.2s; }
+    .delay-300 { transition-delay: 0.3s; }
+    .delay-400 { transition-delay: 0.4s; }
+    .delay-500 { transition-delay: 0.5s; }
+
+    /* ===== LAYOUT ===== */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ===== STARS BACKGROUND ===== */
+    .stars-bg {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .star {
+      position: absolute;
+      background: #fff;
+      border-radius: 50%;
+      animation: twinkle var(--dur, 3s) ease-in-out infinite;
+      animation-delay: var(--delay, 0s);
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.8; }
+    }
+
+    /* ===== NAVIGATION ===== */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      background: rgba(22, 20, 32, 0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+      transition: var(--transition);
+    }
+    .nav.scrolled {
+      background: rgba(22, 20, 32, 0.97);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+    .nav-logo img {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+    .nav-logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .nav-logo-text span {
+      color: var(--purple-light);
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+    .nav-links a:hover { color: var(--text-primary); }
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      background: var(--gradient-primary);
+      color: #fff !important;
+      border-radius: var(--radius-pill);
+      font-size: 15px !important;
+      font-weight: 600 !important;
+      text-decoration: none;
+      transition: var(--transition);
+      box-shadow: 0 4px 20px rgba(97, 74, 197, 0.4);
+    }
+    .nav-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(97, 74, 197, 0.6);
+    }
+    .nav-cta svg { width: 16px; height: 16px; }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--text-primary);
+      border-radius: 2px;
+      transition: var(--transition);
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Mobile menu */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 72px; left: 0; right: 0;
+      background: rgba(22, 20, 32, 0.98);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 24px;
+      z-index: 999;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 500;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      transition: var(--transition);
+    }
+    .mobile-menu a:hover { color: var(--text-primary); }
+    .mobile-menu .nav-cta {
+      margin-top: 8px;
+      text-align: center;
+      justify-content: center;
+      border-bottom: none;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 0 80px;
+      overflow: hidden;
+    }
+    .hero-glow-1 {
+      position: absolute;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(97, 74, 197, 0.35) 0%, transparent 70%);
+      top: -100px; left: -200px;
+      pointer-events: none;
+    }
+    .hero-glow-2 {
+      position: absolute;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(63, 82, 194, 0.25) 0%, transparent 70%);
+      bottom: 0; right: -100px;
+      pointer-events: none;
+    }
+    .hero-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(97, 74, 197, 0.2);
+      border: 1px solid rgba(97, 74, 197, 0.4);
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--purple-light);
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px;
+      background: var(--purple-light);
+      border-radius: 50%;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    .hero-title {
+      font-size: clamp(40px, 5vw, 64px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 20px;
+    }
+    .hero-title .gradient-text {
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 36px;
+      max-width: 480px;
+    }
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 28px;
+      background: var(--gradient-primary);
+      color: #fff;
+      border-radius: var(--radius-pill);
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 4px 24px rgba(97, 74, 197, 0.45);
+    }
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 40px rgba(97, 74, 197, 0.65);
+    }
+    .btn-primary:active { transform: translateY(-1px); }
+    .btn-primary svg { width: 20px; height: 20px; }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: transparent;
+      color: var(--text-primary);
+      border-radius: var(--radius-pill);
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1.5px solid var(--border-card);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-secondary:hover {
+      border-color: rgba(97, 74, 197, 0.6);
+      background: rgba(97, 74, 197, 0.1);
+      transform: translateY(-2px);
+    }
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+    .hero-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .hero-meta-item svg { width: 14px; height: 14px; color: var(--purple-light); }
+
+    /* ===== MOCKUP ===== */
+    .hero-mockup {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .mockup-window {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      border: 1px solid var(--border-card);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(97, 74, 197, 0.2);
+      overflow: hidden;
+      animation: float 6s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+    .mockup-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: rgba(22, 20, 32, 0.8);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .titlebar-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+    }
+    .titlebar-dot.red { background: #FF5F57; }
+    .titlebar-dot.yellow { background: #FEBC2E; }
+    .titlebar-dot.green { background: #28C840; }
+    .titlebar-title {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .mockup-body {
+      padding: 0;
+      background: #1a1828;
+    }
+    /* App UI inside mockup */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 12px;
+      background: linear-gradient(180deg, rgba(97,74,197,0.15) 0%, transparent 100%);
+    }
+    .app-logo-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .app-logo-row img {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+    .app-logo-row span {
+      font-size: 14px;
+      font-weight: 700;
+      color: #F8F8F8;
+    }
+    .app-balance-section {
+      text-align: center;
+      padding: 16px 20px 20px;
+    }
+    .app-balance-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .app-balance-amount {
+      font-size: 32px;
+      font-weight: 800;
+      color: #F8F8F8;
+      letter-spacing: -1px;
+    }
+    .app-balance-change {
+      font-size: 12px;
+      color: #28C840;
+      margin-top: 2px;
+    }
+    .app-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 0 20px 12px;
+    }
+    .app-tab {
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .app-tab.active {
+      background: var(--gradient-primary);
+      color: #fff;
+    }
+    .app-tab:not(.active) {
+      color: var(--text-muted);
+    }
+    .app-token-list {
+      padding: 0 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .app-token-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .token-icon {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .token-info { flex: 1; }
+    .token-name { font-size: 13px; font-weight: 600; color: #F8F8F8; }
+    .token-chain { font-size: 11px; color: var(--text-muted); }
+    .token-value { text-align: right; }
+    .token-amount { font-size: 13px; font-weight: 600; color: #F8F8F8; }
+    .token-change-pos { font-size: 11px; color: #28C840; }
+    .token-change-neg { font-size: 11px; color: #FF5F57; }
+    .app-bottom-bar {
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 20px 14px;
+      border-top: 1px solid var(--border-subtle);
+      background: rgba(22,20,32,0.6);
+    }
+    .bottom-bar-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .bottom-bar-item.active { color: var(--purple-light); }
+    .bottom-bar-item svg { width: 18px; height: 18px; }
+
+    /* Floating badges */
+    .badge-float {
+      position: absolute;
+      background: rgba(22, 20, 32, 0.92);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      white-space: nowrap;
+      z-index: 10;
+    }
+    .badge-float-icon {
+      width: 28px; height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .badge-1 {
+      top: 15%;
+      right: -20px;
+      animation: badge-float-1 4s ease-in-out infinite;
+    }
+    .badge-2 {
+      bottom: 25%;
+      left: -20px;
+      animation: badge-float-2 5s ease-in-out infinite;
+    }
+    .badge-3 {
+      bottom: 10%;
+      right: -10px;
+      animation: badge-float-3 4.5s ease-in-out infinite;
+    }
+    @keyframes badge-float-1 {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-8px) rotate(1deg); }
+    }
+    @keyframes badge-float-2 {
+      0%, 100% { transform: translateY(0) rotate(1deg); }
+      50% { transform: translateY(-10px) rotate(-1deg); }
+    }
+    @keyframes badge-float-3 {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    /* ===== STATS BAR ===== */
+    .stats-bar {
+      position: relative;
+      z-index: 1;
+      padding: 40px 0;
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .stats-inner {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+    }
+    .stat-item {
+      text-align: center;
+      padding: 20px;
+      position: relative;
+    }
+    .stat-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 20%; bottom: 20%;
+      width: 1px;
+      background: var(--border-subtle);
+    }
+    .stat-number {
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ===== FEATURES ===== */
+    .features {
+      padding: 100px 0;
+      position: relative;
+    }
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--purple-light);
+      margin-bottom: 16px;
+    }
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 24px; height: 2px;
+      background: var(--gradient-primary);
+      border-radius: 2px;
+    }
+    .section-title {
+      font-size: clamp(28px, 3.5vw, 44px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .section-subtitle {
+      font-size: 17px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 540px;
+    }
+    .features-header {
+      text-align: center;
+      margin-bottom: 72px;
+    }
+    .features-header .section-label { justify-content: center; }
+    .features-header .section-subtitle { margin: 0 auto; }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-card);
+      padding: 36px 28px;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--gradient-primary);
+      opacity: 0;
+      transition: var(--transition);
+    }
+    .feature-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(97, 74, 197, 0.4);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 40px rgba(97,74,197,0.15);
+    }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card-glow {
+      position: absolute;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(97,74,197,0.15) 0%, transparent 70%);
+      top: -50px; right: -50px;
+      pointer-events: none;
+    }
+    .feature-icon {
+      width: 56px; height: 56px;
+      border-radius: 16px;
+      background: rgba(97, 74, 197, 0.15);
+      border: 1px solid rgba(97, 74, 197, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      font-size: 24px;
+    }
+    .feature-number {
+      position: absolute;
+      top: 24px; right: 24px;
+      font-size: 48px;
+      font-weight: 800;
+      color: rgba(97, 74, 197, 0.1);
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+    .feature-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.3px;
+    }
+    .feature-desc {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .feature-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 20px;
+      padding: 4px 12px;
+      background: rgba(97, 74, 197, 0.15);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--purple-light);
+    }
+
+    /* ===== WHY DESKTOP ===== */
+    .why-desktop {
+      padding: 100px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .why-desktop-glow {
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(63, 82, 194, 0.2) 0%, transparent 70%);
+      top: 50%; right: -200px;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    .why-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .why-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-top: 32px;
+    }
+    .why-item {
+      display: flex;
+      gap: 16px;
+      padding: 20px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      transition: var(--transition);
+    }
+    .why-item:hover {
+      border-color: rgba(97, 74, 197, 0.4);
+      background: rgba(32, 30, 42, 0.9);
+    }
+    .why-item-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: var(--gradient-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 18px;
+    }
+    .why-item-content h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .why-item-content p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .why-visual {
+      position: relative;
+    }
+    .why-screen {
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      border: 1px solid var(--border-card);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+    .why-screen-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: rgba(22,20,32,0.8);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .why-screen-content {
+      padding: 20px;
+    }
+    .screen-stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .screen-stat {
+      background: rgba(97,74,197,0.1);
+      border: 1px solid rgba(97,74,197,0.2);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+    .screen-stat-val {
+      font-size: 18px;
+      font-weight: 800;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .screen-stat-lbl {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+    .screen-chart {
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      padding: 16px;
+      height: 100px;
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+    }
+    .chart-bar {
+      flex: 1;
+      border-radius: 4px 4px 0 0;
+      background: var(--gradient-primary);
+      opacity: 0.7;
+      transition: var(--transition);
+    }
+    .chart-bar:hover { opacity: 1; }
+
+    /* ===== TESTIMONIALS ===== */
+    .testimonials {
+      padding: 100px 0;
+      position: relative;
+    }
+    .testimonials-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    .testimonials-header .section-label { justify-content: center; }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    .testimonial-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-card);
+      padding: 28px;
+      transition: var(--transition);
+    }
+    .testimonial-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(97, 74, 197, 0.3);
+    }
+    .testimonial-stars {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 16px;
+    }
+    .testimonial-stars span {
+      color: #FEBC2E;
+      font-size: 14px;
+    }
+    .testimonial-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .author-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .author-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .author-date {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ===== DOWNLOAD CTA ===== */
+    .download-cta {
+      padding: 80px 0;
+      position: relative;
+    }
+    .download-cta-inner {
+      background: linear-gradient(135deg, rgba(97,74,197,0.25) 0%, rgba(63,82,194,0.2) 50%, rgba(22,20,32,0.8) 100%);
+      border: 1px solid rgba(97, 74, 197, 0.3);
+      border-radius: 28px;
+      padding: 64px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 40px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-glow-1 {
+      position: absolute;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(97,74,197,0.3) 0%, transparent 70%);
+      top: -100px; left: -100px;
+      pointer-events: none;
+    }
+    .cta-glow-2 {
+      position: absolute;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(63,82,194,0.2) 0%, transparent 70%);
+      bottom: -80px; right: 200px;
+      pointer-events: none;
+    }
+    .cta-content { position: relative; z-index: 1; }
+    .cta-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--purple-light);
+      margin-bottom: 16px;
+    }
+    .cta-title {
+      font-size: clamp(28px, 3vw, 40px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+    .cta-subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      max-width: 480px;
+    }
+    .cta-actions {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .cta-actions .btn-primary {
+      font-size: 17px;
+      padding: 16px 36px;
+      white-space: nowrap;
+    }
+    .cta-version {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .cta-requirements {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .cta-requirements svg { width: 12px; height: 12px; }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      padding: 60px 0 32px;
+      border-top: 1px solid var(--border-subtle);
+      position: relative;
+    }
+    .footer-inner {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+    .footer-brand {}
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+    .footer-logo img {
+      width: 32px; height: 32px;
+      border-radius: 7px;
+      object-fit: cover;
+    }
+    .footer-logo-text {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .footer-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .footer-socials {
+      display: flex;
+      gap: 10px;
+    }
+    .social-link {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    .social-link:hover {
+      background: rgba(97,74,197,0.2);
+      border-color: rgba(97,74,197,0.4);
+      color: var(--text-primary);
+    }
+    .social-link svg { width: 16px; height: 16px; }
+    .footer-col-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-links a {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    .footer-links a:hover { color: var(--text-primary); }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-subtle);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-copyright {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .footer-legal {
+      display: flex;
+      gap: 20px;
+    }
+    .footer-legal a {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    .footer-legal a:hover { color: var(--text-secondary); }
+
+    /* ===== SPARKLES ===== */
+    .sparkle {
+      position: absolute;
+      pointer-events: none;
+    }
+    .sparkle::before {
+      content: '✦';
+      font-size: var(--size, 12px);
+      color: rgba(118, 86, 238, 0.5);
+      animation: sparkle-anim var(--dur, 4s) ease-in-out infinite;
+      animation-delay: var(--delay, 0s);
+    }
+    @keyframes sparkle-anim {
+      0%, 100% { opacity: 0.2; transform: scale(0.8) rotate(0deg); }
+      50% { opacity: 0.8; transform: scale(1.2) rotate(180deg); }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-inner { grid-template-columns: 1fr 1fr; gap: 32px; }
+      .why-inner { gap: 48px; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links, .nav-cta { display: none; }
+      .hamburger { display: flex; }
+      .hero-inner {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .hero-subtitle { margin: 0 auto 36px; }
+      .hero-actions { justify-content: center; }
+      .hero-meta { justify-content: center; }
+      .hero-mockup { order: -1; }
+      .mockup-window { max-width: 340px; }
+      .badge-1 { right: -10px; }
+      .badge-2 { left: -10px; }
+      .badge-3 { display: none; }
+      .stats-inner { grid-template-columns: repeat(3, 1fr); }
+      .features-grid { grid-template-columns: 1fr; }
+      .why-inner { grid-template-columns: 1fr; }
+      .why-visual { display: none; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .download-cta-inner {
+        grid-template-columns: 1fr;
+        padding: 40px 28px;
+        text-align: center;
+      }
+      .cta-subtitle { margin: 0 auto; }
+      .cta-actions { align-items: center; }
+      .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-inner { grid-template-columns: 1fr; }
+      .stat-item:not(:last-child)::after { display: none; }
+      .hero-actions { flex-direction: column; align-items: stretch; }
+      .btn-primary, .btn-secondary { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Stars background -->
+  <div class="stars-bg" id="stars-bg"></div>
+
+  <!-- Navigation -->
+  <nav class="nav" id="nav">
+    <div class="container">
+      <div class="nav-inner">
+        <a href="#" class="nav-logo">
+          <img src="https://pbs.twimg.com/profile_images/1919356719978745856/Y8WmQuY2_400x400.jpg" alt="Bifrost Logo" />
+          <span class="nav-logo-text">Bifrost <span>Wallet</span></span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#why-desktop">Why Desktop</a></li>
+          <li><a href="#testimonials">Reviews</a></li>
+          <li><a href="https://bifrostwallet.com/" target="_blank" rel="noopener">Main Site</a></li>
+        </ul>
+        <a href="#" class="nav-cta" onclick="window.location.href='https://api.files.link/v1/p/80c5c61f-745a-488a-b15b-22f130138975'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Now
+        </a>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#features" onclick="closeMobileMenu()">Features</a>
+    <a href="#why-desktop" onclick="closeMobileMenu()">Why Desktop</a>
+    <a href="#testimonials" onclick="closeMobileMenu()">Reviews</a>
+    <a href="https://bifrostwallet.com/" target="_blank" rel="noopener" onclick="closeMobileMenu()">Main Site</a>
+    <a href="#" class="nav-cta" onclick="window.location.href='https://api.files.link/v1/p/80c5c61f-745a-488a-b15b-22f130138975'">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download for Windows
+    </a>
+  </div>
+
+  <!-- HERO SECTION -->
+  <section class="hero">
+    <!-- Glow effects -->
+    <div class="hero-glow-1"></div>
+    <div class="hero-glow-2"></div>
+    <!-- Sparkles -->
+    <div class="sparkle" style="top:20%;left:10%;--size:16px;--dur:3s;--delay:0s"></div>
+    <div class="sparkle" style="top:35%;left:25%;--size:10px;--dur:4s;--delay:1s"></div>
+    <div class="sparkle" style="top:60%;left:5%;--size:14px;--dur:5s;--delay:0.5s"></div>
+    <div class="sparkle" style="top:15%;right:15%;--size:12px;--dur:3.5s;--delay:1.5s"></div>
+
+    <div class="container">
+      <div class="hero-inner">
+        <!-- Left: Text -->
+        <div class="hero-content">
+          <div class="hero-badge reveal">
+            <div class="hero-badge-dot"></div>
+            Now Available for Windows
+          </div>
+          <h1 class="hero-title reveal delay-100">
+            Bifrost Wallet<br />
+            <span class="gradient-text">Desktop App</span><br />
+            for Windows
+          </h1>
+          <p class="hero-subtitle reveal delay-200">
+            The full power of Bifrost Wallet — now on your desktop. Manage your crypto, explore DeFi, and stay protected with cutting-edge AI security, all from your Windows PC.
+          </p>
+          <div class="hero-actions reveal delay-300">
+            <a href="#" class="btn-primary" onclick="window.location.href='https://api.files.link/v1/p/80c5c61f-745a-488a-b15b-22f130138975'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download for Windows
+            </a>
+            <a href="#features" class="btn-secondary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
+              Explore Features
+            </a>
+          </div>
+          <div class="hero-meta reveal delay-400">
+            <div class="hero-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Free to download
+            </div>
+            <div class="hero-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              Windows 10 / 11
+            </div>
+            <div class="hero-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Self-custody
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Mockup -->
+        <div class="hero-mockup reveal-right delay-200">
+          <div class="mockup-window">
+            <!-- Title bar -->
+            <div class="mockup-titlebar">
+              <div class="titlebar-dot red"></div>
+              <div class="titlebar-dot yellow"></div>
+              <div class="titlebar-dot green"></div>
+              <div class="titlebar-title">Bifrost Wallet — Desktop</div>
+            </div>
+            <!-- App UI -->
+            <div class="mockup-body">
+              <div class="app-header">
+                <div class="app-logo-row">
+                  <img src="https://pbs.twimg.com/profile_images/1919356719978745856/Y8WmQuY2_400x400.jpg" alt="Bifrost" />
+                  <span>Bifrost Wallet</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="rgba(248,248,248,0.4)" stroke-width="2" style="width:18px;height:18px"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+              </div>
+              <div class="app-balance-section">
+                <div class="app-balance-label">Total Balance</div>
+                <div class="app-balance-amount">$12,847.32</div>
+                <div class="app-balance-change">▲ +4.28% today</div>
+              </div>
+              <div class="app-tabs">
+                <div class="app-tab active">Assets</div>
+                <div class="app-tab">NFTs</div>
+                <div class="app-tab">DApps</div>
+              </div>
+              <div class="app-token-list">
+                <div class="app-token-item">
+                  <div class="token-icon" style="background:linear-gradient(135deg,#F7931A,#E8820C)">₿</div>
+                  <div class="token-info">
+                    <div class="token-name">Bitcoin</div>
+                    <div class="token-chain">BTC Network</div>
+                  </div>
+                  <div class="token-value">
+                    <div class="token-amount">$8,204.10</div>
+                    <div class="token-change-pos">+2.4%</div>
+                  </div>
+                </div>
+                <div class="app-token-item">
+                  <div class="token-icon" style="background:linear-gradient(135deg,#627EEA,#4B6FE0)">Ξ</div>
+                  <div class="token-info">
+                    <div class="token-name">Ethereum</div>
+                    <div class="token-chain">ERC-20</div>
+                  </div>
+                  <div class="token-value">
+                    <div class="token-amount">$2,941.55</div>
+                    <div class="token-change-pos">+1.8%</div>
+                  </div>
+                </div>
+                <div class="app-token-item">
+                  <div class="token-icon" style="background:linear-gradient(135deg,#E84142,#C0392B)">S</div>
+                  <div class="token-info">
+                    <div class="token-name">Songbird</div>
+                    <div class="token-chain">SGB Network</div>
+                  </div>
+                  <div class="token-value">
+                    <div class="token-amount">$1,701.67</div>
+                    <div class="token-change-neg">-0.6%</div>
+                  </div>
+                </div>
+              </div>
+              <div class="app-bottom-bar">
+                <div class="bottom-bar-item active">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                  Home
+                </div>
+                <div class="bottom-bar-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  Explore
+                </div>
+                <div class="bottom-bar-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                  NFTs
+                </div>
+                <div class="bottom-bar-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                  Profile
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floating badges -->
+          <div class="badge-float badge-1">
+            <div class="badge-float-icon" style="background:rgba(40,200,64,0.15)">🛡️</div>
+            <div>
+              <div style="font-size:11px;color:var(--text-muted)">Protection</div>
+              <div style="font-size:13px;font-weight:700;color:#28C840">Scam Detected</div>
+            </div>
+          </div>
+          <div class="badge-float badge-2">
+            <div class="badge-float-icon" style="background:rgba(97,74,197,0.2)">🤖</div>
+            <div>
+              <div style="font-size:11px;color:var(--text-muted)">AI Assistant</div>
+              <div style="font-size:13px;font-weight:700">Active</div>
+            </div>
+          </div>
+          <div class="badge-float badge-3">
+            <div class="badge-float-icon" style="background:rgba(254,188,46,0.15)">⚡</div>
+            <div>
+              <div style="font-size:11px;color:var(--text-muted)">Hardware</div>
+              <div style="font-size:13px;font-weight:700">Compatible</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="container">
+      <div class="stats-inner">
+        <div class="stat-item reveal">
+          <div class="stat-number">1,000+</div>
+          <div class="stat-label">Supported Assets</div>
+        </div>
+        <div class="stat-item reveal delay-200">
+          <div class="stat-number">14</div>
+          <div class="stat-label">Blockchains</div>
+        </div>
+        <div class="stat-item reveal delay-400">
+          <div class="stat-number">250K+</div>
+          <div class="stat-label">Active Users</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES SECTION -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="features-header">
+        <div class="section-label reveal">Exclusive Desktop Features</div>
+        <h2 class="section-title reveal delay-100">Built for Power Users</h2>
+        <p class="section-subtitle reveal delay-200">
+          The Bifrost Desktop App brings three exclusive capabilities unavailable on mobile — engineered for security, performance, and intelligence.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card reveal delay-100">
+          <div class="feature-card-glow"></div>
+          <div class="feature-number">01</div>
+          <div class="feature-icon">⚡</div>
+          <h3 class="feature-title">Improved Hardware Compatibility</h3>
+          <p class="feature-desc">
+            Seamlessly connect Ledger, Trezor, and other hardware wallets directly through your desktop. Enjoy native USB and Bluetooth support for maximum security when signing transactions.
+          </p>
+          <div class="feature-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px"><polyline points="20 6 9 17 4 12"/></svg>
+            Hardware Wallets Supported
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card reveal delay-200">
+          <div class="feature-card-glow"></div>
+          <div class="feature-number">02</div>
+          <div class="feature-icon">🛡️</div>
+          <h3 class="feature-title">Advanced Scam Detection</h3>
+          <p class="feature-desc">
+            Real-time transaction analysis powered by on-chain intelligence. Bifrost Desktop automatically flags suspicious contracts, phishing sites, and malicious token approvals before you sign.
+          </p>
+          <div class="feature-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px"><polyline points="20 6 9 17 4 12"/></svg>
+            Real-time Protection
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card reveal delay-300">
+          <div class="feature-card-glow"></div>
+          <div class="feature-number">03</div>
+          <div class="feature-icon">🤖</div>
+          <h3 class="feature-title">In-Built AI Support</h3>
+          <p class="feature-desc">
+            Your personal crypto assistant, always on. Ask questions about your portfolio, get DeFi strategy insights, decode complex transactions, and receive instant guidance — all without leaving the app.
+          </p>
+          <div class="feature-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px"><polyline points="20 6 9 17 4 12"/></svg>
+            Powered by AI
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY DESKTOP SECTION -->
+  <section class="why-desktop" id="why-desktop">
+    <div class="why-desktop-glow"></div>
+    <div class="container">
+      <div class="why-inner">
+        <div>
+          <div class="section-label reveal">Desktop Advantage</div>
+          <h2 class="section-title reveal delay-100">Why Choose the Desktop App?</h2>
+          <p class="section-subtitle reveal delay-200">
+            A larger screen and dedicated hardware unlock a richer, more powerful experience than any mobile wallet can offer.
+          </p>
+          <div class="why-list">
+            <div class="why-item reveal delay-100">
+              <div class="why-item-icon">🔑</div>
+              <div class="why-item-content">
+                <h4>Full Self-Custody Control</h4>
+                <p>Your keys, your crypto. Bifrost Desktop never stores your private keys on any server — you remain in complete control at all times.</p>
+              </div>
+            </div>
+            <div class="why-item reveal delay-200">
+              <div class="why-item-icon">🌐</div>
+              <div class="why-item-content">
+                <h4>Integrated Web3 Browser</h4>
+                <p>Access DeFi protocols, NFT marketplaces, and dApps directly from the built-in browser with one-click wallet connection.</p>
+              </div>
+            </div>
+            <div class="why-item reveal delay-300">
+              <div class="why-item-icon">📊</div>
+              <div class="why-item-content">
+                <h4>Advanced Portfolio Dashboard</h4>
+                <p>Track your entire multi-chain portfolio with detailed charts, P&L tracking, and real-time price feeds across all 14 supported blockchains.</p>
+              </div>
+            </div>
+            <div class="why-item reveal delay-400">
+              <div class="why-item-icon">🔔</div>
+              <div class="why-item-content">
+                <h4>Desktop Notifications</h4>
+                <p>Get instant alerts for incoming transactions, price movements, and security warnings directly on your Windows desktop.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visual: Desktop screen mockup -->
+        <div class="why-visual reveal-right delay-200">
+          <div class="why-screen">
+            <div class="why-screen-bar">
+              <div class="titlebar-dot red"></div>
+              <div class="titlebar-dot yellow"></div>
+              <div class="titlebar-dot green"></div>
+              <div style="flex:1;text-align:center;font-size:11px;color:var(--text-muted)">Portfolio Overview</div>
+            </div>
+            <div class="why-screen-content">
+              <div class="screen-stat-row">
+                <div class="screen-stat">
+                  <div class="screen-stat-val">$12.8K</div>
+                  <div class="screen-stat-lbl">Balance</div>
+                </div>
+                <div class="screen-stat">
+                  <div class="screen-stat-val">+4.3%</div>
+                  <div class="screen-stat-lbl">Today</div>
+                </div>
+                <div class="screen-stat">
+                  <div class="screen-stat-val">14</div>
+                  <div class="screen-stat-lbl">Chains</div>
+                </div>
+              </div>
+              <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">7-Day Performance</div>
+              <div class="screen-chart">
+                <div class="chart-bar" style="height:40%"></div>
+                <div class="chart-bar" style="height:55%"></div>
+                <div class="chart-bar" style="height:45%"></div>
+                <div class="chart-bar" style="height:70%"></div>
+                <div class="chart-bar" style="height:60%"></div>
+                <div class="chart-bar" style="height:80%"></div>
+                <div class="chart-bar" style="height:95%"></div>
+              </div>
+              <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#F7931A,#E8820C);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">₿</div>
+                    <span style="font-size:13px;font-weight:600;">Bitcoin</span>
+                  </div>
+                  <span style="font-size:13px;color:#28C840;font-weight:600;">+2.4%</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#627EEA,#4B6FE0);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">Ξ</div>
+                    <span style="font-size:13px;font-weight:600;">Ethereum</span>
+                  </div>
+                  <span style="font-size:13px;color:#28C840;font-weight:600;">+1.8%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials" id="testimonials">
+    <div class="container">
+      <div class="testimonials-header">
+        <div class="section-label reveal">Trusted & Loved</div>
+        <h2 class="section-title reveal delay-100">What Our Users Say</h2>
+        <p class="section-subtitle reveal delay-200" style="margin:0 auto">
+          Join over 250,000 users who trust Bifrost Wallet to manage their digital assets.
+        </p>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card reveal delay-100">
+          <div class="testimonial-stars">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+          <p class="testimonial-text">"Arguably one of the best user-focused wallets out there. The desktop app takes it to a whole new level — hardware wallet support is flawless."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">J</div>
+            <div>
+              <div class="author-name">Joshed1991</div>
+              <div class="author-date">5 Nov</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal delay-200">
+          <div class="testimonial-stars">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+          <p class="testimonial-text">"The AI support feature is a game-changer. I asked it to explain a complex DeFi transaction and it broke it down perfectly. Would give 20 stars!"</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">R</div>
+            <div>
+              <div class="author-name">R.Meredith</div>
+              <div class="author-date">2 Dec</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal delay-300">
+          <div class="testimonial-stars">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+          <p class="testimonial-text">"The scam detection saved me from a phishing contract. It flagged it immediately before I signed. This wallet genuinely cares about user safety."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">B</div>
+            <div>
+              <div class="author-name">Bryall225</div>
+              <div class="author-date">Jan</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal delay-100">
+          <div class="testimonial-stars">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+          <p class="testimonial-text">"Very easy to use and easy to explain to someone who has little experience. The desktop app is brilliant — the portfolio view is incredibly detailed."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">D</div>
+            <div>
+              <div class="author-name">Darren P.</div>
+              <div class="author-date">31 Oct</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal delay-200">
+          <div class="testimonial-stars">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+          <p class="testimonial-text">"Well done Bifrost Wallet — easy to use, top marks. The desktop version connects to my Ledger instantly. Proper job!"</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">F</div>
+            <div>
+              <div class="author-name">Forrest F.</div>
+              <div class="author-date">10 Oct</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal delay-300">
+          <div class="testimonial-stars">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+          <p class="testimonial-text">"Putting the money system back in the hands of the people! Bifrost is doing a superb job advancing the goals of Web 3.0. The future is here."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">P</div>
+            <div>
+              <div class="author-name">ByThePeople</div>
+              <div class="author-date">23 Sep</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD CTA -->
+  <section class="download-cta" id="download">
+    <div class="container">
+      <div class="download-cta-inner reveal">
+        <div class="cta-glow-1"></div>
+        <div class="cta-glow-2"></div>
+        <div class="cta-content">
+          <div class="cta-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            Windows Desktop App
+          </div>
+          <h2 class="cta-title">Download Bifrost Desktop<br />for Windows — Free</h2>
+          <p class="cta-subtitle">
+            Get started in minutes. Self-custody your crypto, connect your hardware wallet, and stay protected with AI-powered scam detection — all from your Windows PC.
+          </p>
+        </div>
+        <div class="cta-actions">
+          <a href="#" class="btn-primary" onclick="window.location.href='https://api.files.link/v1/p/80c5c61f-745a-488a-b15b-22f130138975'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download for Windows
+          </a>
+          <div class="cta-version">Latest version • Free</div>
+          <div class="cta-requirements">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>
+            Requires Windows 10 or later
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <!-- Brand -->
+        <div class="footer-brand">
+          <a href="#" class="footer-logo">
+            <img src="https://pbs.twimg.com/profile_images/1919356719978745856/Y8WmQuY2_400x400.jpg" alt="Bifrost" />
+            <span class="footer-logo-text">Bifrost Wallet</span>
+          </a>
+          <p class="footer-desc">
+            Self-custody, multi-chain crypto wallet for DeFi, NFTs, and Web3. Have full control over your crypto tokens, keys, and data. Now available on Windows Desktop.
+          </p>
+          <div class="footer-socials">
+            <a href="https://twitter.com/bifrostwallet" target="_blank" rel="noopener" class="social-link" aria-label="X / Twitter">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://www.youtube.com/@bifrostwallet" target="_blank" rel="noopener" class="social-link" aria-label="YouTube">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </a>
+            <a href="https://www.reddit.com/r/bifrostwallet" target="_blank" rel="noopener" class="social-link" aria-label="Reddit">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>
+            </a>
+            <a href="https://t.me/bifrostwallet" target="_blank" rel="noopener" class="social-link" aria-label="Telegram">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Company -->
+        <div>
+          <div class="footer-col-title">Company</div>
+          <ul class="footer-links">
+            <li><a href="https://bifrostwallet.com/" target="_blank" rel="noopener">Main Website</a></li>
+            <li><a href="https://bifrostwallet.com/security" target="_blank" rel="noopener">Security</a></li>
+            <li><a href="https://bifrostwallet.com/blog" target="_blank" rel="noopener">Blog</a></li>
+            <li><a href="https://bifrostwallet.com/media-kit" target="_blank" rel="noopener">Media Kit</a></li>
+            <li><a href="https://support.bifrostwallet.com/" target="_blank" rel="noopener">Support</a></li>
+          </ul>
+        </div>
+
+        <!-- Assets -->
+        <div>
+          <div class="footer-col-title">Supported Chains</div>
+          <ul class="footer-links">
+            <li><a href="https://bifrostwallet.com/" target="_blank" rel="noopener">Flare</a></li>
+            <li><a href="https://bifrostwallet.com/" target="_blank" rel="noopener">Ethereum</a></li>
+            <li><a href="https://bifrostwallet.com/" target="_blank" rel="noopener">XRP</a></li>
+            <li><a href="https://bifrostwallet.com/" target="_blank" rel="noopener">Polygon</a></li>
+            <li><a href="https://bifrostwallet.com/" target="_blank" rel="noopener">Arbitrum</a></li>
+            <li><a href="https://bifrostwallet.com/" target="_blank" rel="noopener">BNB Chain</a></li>
+          </ul>
+        </div>
+
+        <!-- Legal -->
+        <div>
+          <div class="footer-col-title">Legal</div>
+          <ul class="footer-links">
+            <li><a href="https://bifrostwallet.com/terms" target="_blank" rel="noopener">Terms of Use</a></li>
+            <li><a href="https://bifrostwallet.com/privacy" target="_blank" rel="noopener">Privacy Policy</a></li>
+            <li><a href="https://bifrostwallet.com/supported-assets" target="_blank" rel="noopener">Supported Assets</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-copyright">© 2026 Bifrost Software Ltd. All rights reserved.</div>
+        <div class="footer-legal">
+          <a href="https://bifrostwallet.com/terms" target="_blank" rel="noopener">Terms</a>
+          <a href="https://bifrostwallet.com/privacy" target="_blank" rel="noopener">Privacy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ===== STARS BACKGROUND =====
+    (function() {
+      const container = document.getElementById('stars-bg');
+      for (let i = 0; i < 80; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        const size = Math.random() * 2 + 1;
+        star.style.cssText = `
+          width: ${size}px;
+          height: ${size}px;
+          top: ${Math.random() * 100}%;
+          left: ${Math.random() * 100}%;
+          --dur: ${Math.random() * 4 + 2}s;
+          --delay: ${Math.random() * 4}s;
+          opacity: ${Math.random() * 0.5 + 0.1};
+        `;
+        container.appendChild(star);
+      }
+    })();
+
+    // ===== NAVIGATION SCROLL =====
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    });
+
+    // ===== HAMBURGER MENU =====
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+    });
+    function closeMobileMenu() {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+    }
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
+        closeMobileMenu();
+      }
+    });
+
+    // ===== SCROLL REVEAL =====
+    const revealElements = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    revealElements.forEach(el => observer.observe(el));
+
+    // ===== SMOOTH ANCHOR SCROLL =====
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const href = this.getAttribute('href');
+        if (href === '#') return;
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+          const offset = 80;
+          const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
+      });
+    });
+
+    // ===== COUNTER ANIMATION =====
+    function animateCounter(el, target, suffix = '') {
+      const duration = 2000;
+      const start = performance.now();
+      const isDecimal = target.toString().includes('.');
+      function update(time) {
+        const elapsed = time - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(eased * parseFloat(target));
+        el.textContent = current.toLocaleString() + suffix;
+        if (progress < 1) requestAnimationFrame(update);
+        else el.textContent = parseFloat(target).toLocaleString() + suffix;
+      }
+      requestAnimationFrame(update);
+    }
+
+    const statNumbers = document.querySelectorAll('.stat-number');
+    const statsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const text = el.textContent;
+          if (text.includes('1,000')) animateCounter(el, 1000, '+');
+          else if (text.includes('14')) animateCounter(el, 14, '');
+          else if (text.includes('250')) animateCounter(el, 250, 'K+');
+          statsObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+    statNumbers.forEach(el => statsObserver.observe(el));
+  </script>
+</body>
+</html>
